@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Budget App - Manage Budget</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Theme Preference Script -->
+  <script>
+    if (localStorage.getItem('theme') === 'dark' ||
+        (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.classList.add('dark');
+    }
+  </script>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 flex">
+
+  <!-- Side Menu -->
+  <aside class="w-64 bg-white dark:bg-gray-800 h-screen p-6">
+    <nav class="space-y-4">
+      <a href="home.html" class="block text-gray-700 dark:text-gray-300 hover:text-blue-600">🏠 Dashboard</a>
+      <a href="budget.html" class="block text-gray-700 dark:text-gray-300 hover:text-blue-600">💰 Manage Budget</a>
+      <a href="index.html" class="block text-gray-700 dark:text-gray-300 hover:text-blue-600">➕ Create New Budget</a>
+      <button id="toggleTheme" class="w-full text-left text-gray-700 dark:text-gray-300 hover:text-blue-600">🌓 Toggle Theme</button>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="flex-1 p-6 overflow-y-auto">
+    <!-- Budget Editing Section -->
+    <h1 class="text-3xl font-bold text-gray-800 dark:text-white mb-6">Edit Budget Details</h1>
+
+    <!-- Budget Editing Form -->
+    <form id="editBudgetForm" class="mb-8">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label for="editBudgetName" class="block text-gray-700 dark:text-gray-300 mb-2">Budget Name</label>
+          <input type="text" id="editBudgetName" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring" required>
+        </div>
+        <div>
+          <label for="editUserName" class="block text-gray-700 dark:text-gray-300 mb-2">Your Name</label>
+          <input type="text" id="editUserName" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring" required>
+        </div>
+        <div>
+          <label for="editBudgetAmount" class="block text-gray-700 dark:text-gray-300 mb-2">Total Budget Amount</label>
+          <input type="number" id="editBudgetAmount" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring" required>
+        </div>
+        <div>
+          <label for="editBudgetPeriod" class="block text-gray-700 dark:text-gray-300 mb-2">Budget Period</label>
+          <select id="editBudgetPeriod" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring" required>
+            <option value="weekly">Weekly</option>
+            <option value="biweekly">Biweekly</option>
+            <option value="monthly">Monthly</option>
+          </select>
+        </div>
+      </div>
+      <button type="submit" class="mt-6 bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700">Save Changes</button>
+    </form>
+
+    <!-- Categories Management Section -->
+    <section>
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Manage Categories</h2>
+        <button id="addCategory" class="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700">Add Category</button>
+      </div>
+      <div id="categoriesList" class="space-y-4">
+        <!-- Category Items will be inserted here -->
+      </div>
+    </section>
+  </main>
+
+  <!-- Modals -->
+  <!-- Add/Edit Category Modal -->
+  <div id="categoryModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-md">
+      <h2 id="categoryModalTitle" class="text-xl font-bold mb-6 text-gray-800 dark:text-white"></h2>
+      <form id="categoryForm">
+        <div class="mb-4">
+          <label for="categoryName" class="block text-gray-700 dark:text-gray-300 mb-2">Category Name</label>
+          <input type="text" id="categoryName" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring" required>
+        </div>
+        <div class="mb-4">
+          <label for="categoryLimit" class="block text-gray-700 dark:text-gray-300 mb-2">Spending Limit (optional)</label>
+          <input type="number" id="categoryLimit" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring">
+        </div>
+        <div class="mb-6">
+          <label class="block text-gray-700 dark:text-gray-300 mb-2">Subcategories (optional)</label>
+          <div id="subcategoriesList" class="space-y-2">
+            <!-- Subcategory inputs will be added here -->
+          </div>
+          <button type="button" id="addSubcategory" class="mt-2 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700">Add Subcategory</button>
+        </div>
+        <div class="flex justify-end">
+          <button type="button" id="cancelCategory" class="mr-4 bg-gray-600 text-white px-6 py-2 rounded-md hover:bg-gray-700">Cancel</button>
+          <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add Expense Modal -->
+  <div id="expenseModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-md">
+      <h2 id="expenseModalTitle" class="text-xl font-bold mb-6 text-gray-800 dark:text-white"></h2>
+      <form id="expenseForm">
+        <div class="mb-4">
+          <label for="expenseDescription" class="block text-gray-700 dark:text-gray-300 mb-2">Description</label>
+          <input type="text" id="expenseDescription" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring" required>
+        </div>
+        <div class="mb-4">
+          <label for="expenseAmount" class="block text-gray-700 dark:text-gray-300 mb-2">Amount</label>
+          <input type="number" id="expenseAmount" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring" required>
+        </div>
+        <div class="mb-6">
+          <label for="expenseSubcategory" class="block text-gray-700 dark:text-gray-300 mb-2">Subcategory (optional)</label>
+          <select id="expenseSubcategory" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring">
+            <!-- Subcategories will be loaded here -->
+          </select>
+        </div>
+        <div class="flex justify-end">
+          <button type="button" id="cancelExpense" class="mr-4 bg-gray-600 text-white px-6 py-2 rounded-md hover:bg-gray-700">Cancel</button>
+          <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700">Add Expense</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- JavaScript File -->
+  <script src="script.js"></script>
+</body>
+</html>

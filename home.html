@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Budget App - Home</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Theme Preference Script -->
+  <script>
+    if (localStorage.getItem('theme') === 'dark' ||
+        (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.classList.add('dark');
+    }
+  </script>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 flex">
+
+  <!-- Side Menu -->
+  <aside class="w-64 bg-white dark:bg-gray-800 h-screen p-6">
+    <nav class="space-y-4">
+      <a href="home.html" class="block text-gray-700 dark:text-gray-300 hover:text-blue-600">🏠 Dashboard</a>
+      <a href="budget.html" class="block text-gray-700 dark:text-gray-300 hover:text-blue-600">💰 Manage Budget</a>
+      <a href="index.html" class="block text-gray-700 dark:text-gray-300 hover:text-blue-600">➕ Create New Budget</a>
+      <button id="toggleTheme" class="w-full text-left text-gray-700 dark:text-gray-300 hover:text-blue-600">🌓 Toggle Theme</button>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="flex-1 p-6 overflow-y-auto">
+    <h1 id="greeting" class="text-3xl font-bold text-gray-800 dark:text-white mb-4"></h1>
+
+    <!-- Feedback Message -->
+    <div id="feedbackMessage" class="mb-6 text-xl font-semibold"></div>
+
+    <!-- Budget Overview Section -->
+    <section class="mb-6">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- Total Budget Card -->
+        <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
+          <h2 class="text-lg font-semibold text-gray-700 dark:text-gray-300">Total Budget</h2>
+          <p id="totalBudget" class="text-2xl font-bold text-gray-800 dark:text-white"></p>
+          <!-- Progress Bar -->
+          <div class="relative pt-1">
+            <div class="overflow-hidden h-4 mb-4 text-xs flex rounded bg-blue-200">
+              <div id="budgetProgress" style="width: 0%" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-blue-500"></div>
+            </div>
+          </div>
+        </div>
+        <!-- Amount Left Card -->
+        <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
+          <h2 class="text-lg font-semibold text-gray-700 dark:text-gray-300">Amount Left</h2>
+          <p id="amountLeft" class="text-2xl font-bold text-gray-800 dark:text-white"></p>
+        </div>
+        <!-- Budget Period Card -->
+        <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
+          <h2 class="text-lg font-semibold text-gray-700 dark:text-gray-300">Budget Period</h2>
+          <p id="budgetPeriodDisplay" class="text-2xl font-bold text-gray-800 dark:text-white"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Chart and Views -->
+    <section class="mb-6">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Budget Overview</h2>
+        <div>
+          <button id="chartViewBtn" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Chart View</button>
+          <button id="gridViewBtn" class="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700">Grid View</button>
+        </div>
+      </div>
+      <!-- Chart Container -->
+      <div id="chartContainer" class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
+        <div class="relative w-full h-64">
+          <canvas id="budgetChart" class="absolute top-0 left-0 w-full h-full"></canvas>
+        </div>
+      </div>
+      <!-- Categories Grid -->
+      <div id="categoriesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 hidden">
+        <!-- Category Cards Will Go Here -->
+      </div>
+    </section>
+
+    <!-- Financial Goals Section -->
+    <section class="mb-6">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Financial Goals</h2>
+        <button id="addGoal" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700">Add Goal</button>
+      </div>
+      <div id="goalsList" class="space-y-4">
+        <!-- Goals will be listed here -->
+      </div>
+    </section>
+
+    <!-- Notes Section -->
+    <section class="mt-8">
+      <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-2">Notes</h2>
+      <textarea id="notes" class="w-full p-4 border rounded-md dark:bg-gray-700 dark:text-white" rows="5" placeholder="Write your notes here..."></textarea>
+    </section>
+  </main>
+
+  <!-- Modals -->
+  <!-- Add/Edit Goal Modal -->
+<div id="goalModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
+  <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-md">
+    <h2 id="goalModalTitle" class="text-xl font-bold mb-6 text-gray-800 dark:text-white"></h2>
+    <form id="goalForm">
+      <div class="mb-4">
+        <label for="goalName" class="block text-gray-700 dark:text-gray-300 mb-2">Goal Name</label>
+        <input type="text" id="goalName" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring" required>
+      </div>
+      <div class="mb-4">
+        <label for="goalAmount" class="block text-gray-700 dark:text-gray-300 mb-2">Goal Amount</label>
+        <input type="number" id="goalAmount" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring" required>
+      </div>
+      <div class="mb-6">
+        <label for="goalSaved" class="block text-gray-700 dark:text-gray-300 mb-2">Amount Saved</label>
+        <input type="number" id="goalSaved" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring" required>
+      </div>
+      <div class="flex justify-end">
+        <button type="button" id="cancelGoal" class="mr-4 bg-gray-600 text-white px-6 py-2 rounded-md hover:bg-gray-700">Cancel</button>
+        <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700">Save Goal</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+  <!-- View Expenses Modal -->
+  <div id="expensesModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-md">
+      <h2 id="expensesModalTitle" class="text-xl font-bold mb-4 text-gray-800 dark:text-white"></h2>
+      <ul id="expensesList" class="mb-6 space-y-2">
+        <!-- Expenses will be listed here -->
+      </ul>
+      <div class="flex justify-end">
+        <button id="closeExpensesModal" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript File -->
+  <script src="script.js"></script>
+</body>
+</html>
